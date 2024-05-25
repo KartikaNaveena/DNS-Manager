@@ -1,0 +1,27 @@
+.dns-table-container {
+    padding: 20px;
+  }
+  
+  .dns-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .dns-table th, .dns-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .dns-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+  }
+  
+  .dns-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .dns-table tr:hover {
+    background-color: #ddd;
+  }
+  
