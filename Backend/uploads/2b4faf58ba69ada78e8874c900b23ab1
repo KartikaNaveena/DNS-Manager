@@ -1,0 +1,5 @@
+Action,Name,Type,TTL,ResourceRecords
+CREATE,naveena.dns.com,A,300,[{"Value":"192.0.2.1"}]
+UPDATE,naveena.dns.com,A,300,[{"Value":"192.0.2.9"}]
+DELETE,naveena.dns.com,A,300,[{"Value":"192.0.2.9"}]
+

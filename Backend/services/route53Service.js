@@ -20,7 +20,12 @@ const createRecord = async (hostedZoneId, recordData) => {
       Changes: [
         {
           Action: 'CREATE',
-          ResourceRecordSet: recordData
+          ResourceRecordSet: {
+            Name: recordData.Name,
+            Type: recordData.Type,
+            TTL: recordData.TTL,
+            ResourceRecords: recordData.ResourceRecords
+          }
         }
       ]
     }
@@ -37,28 +42,11 @@ const updateRecord = async (hostedZoneId, recordData) => {
       Changes: [
         {
           Action: 'UPSERT',
-          ResourceRecordSet: recordData
-        }
-      ]
-    }
-  };
-  const data = await route53.changeResourceRecordSets(params).promise();
-  return data;
-};
-
-const deleteRecord = async (hostedZoneId, recordName, recordType, ttl, resourceRecords) => {
-  console.log('Deleting record with data:', { recordName, recordType, ttl, resourceRecords });
-  const params = {
-    HostedZoneId: hostedZoneId,
-    ChangeBatch: {
-      Changes: [
-        {
-          Action: 'DELETE',
           ResourceRecordSet: {
-            Name: recordName,
-            Type: recordType,
-            TTL: ttl,
-            ResourceRecords: resourceRecords.map(record => ({ Value: record.Value }))
+            Name: recordData.Name,
+            Type: recordData.Type,
+            TTL: recordData.TTL,
+            ResourceRecords: recordData.ResourceRecords
           }
         }
       ]
@@ -67,6 +55,29 @@ const deleteRecord = async (hostedZoneId, recordName, recordType, ttl, resourceR
   const data = await route53.changeResourceRecordSets(params).promise();
   return data;
 };
+
+const deleteRecord = async (hostedZoneId, recordData) => {
+  console.log('Deleting record with data:', recordData);
+  const params = {
+    HostedZoneId: hostedZoneId,
+    ChangeBatch: {
+      Changes: [
+        {
+          Action: 'DELETE',
+          ResourceRecordSet: {
+            Name: recordData.Name,
+            Type: recordData.Type,
+            TTL: recordData.TTL,
+            ResourceRecords: recordData.ResourceRecords
+          }
+        }
+      ]
+    }
+  };
+  const data = await route53.changeResourceRecordSets(params).promise();
+  return data;
+};
+
 
 
 module.exports = {

@@ -1,0 +1,23 @@
+[
+  {
+    "Action": "CREATE",
+    "Name": "examples.dnsrecords.com",
+    "Type": "A",
+    "TTL": 300,
+    "ResourceRecords": [{"Value": "192.0.2.1"}]
+  },
+  {
+    "Action": "UPDATE",
+    "Name": "examples.dnsrecords.com",
+    "Type": "A",
+    "TTL": 300,
+    "ResourceRecords": [{"Value": "192.0.2.8"}]
+  },
+  {
+    "Action": "DELETE",
+   "Name": "examples.dnsrecords.com",
+    "Type": "A",
+    "TTL": 300,
+    "ResourceRecords": [{"Value": "192.0.2.8"}]
+  }
+]
