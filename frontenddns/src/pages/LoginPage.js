@@ -14,10 +14,10 @@ const LoginPage = ({ setRole }) => {
     try {
       const response = await axios.post('http://localhost:3000/route53/login', { username, password });
       if (response.data.message === 'Login successful') {
-        navigate('/'); 
+        navigate('/domainlist'); 
       }
       else{
-        navigate('/domainlist')
+        navigate('/')
       }
     } catch (error) {
       setError('Invalid credentials');
