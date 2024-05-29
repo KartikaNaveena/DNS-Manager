@@ -74,30 +74,6 @@ router.delete('/zones/hostedzone/:id/records', async (req, res) => {
   }
 });
 
-// Get domain distribution of a hosted zone
-router.get('/zones/hostedzone/:id/domain-distribution', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { domainDistribution } = await route53Service.getRecords(id);
-    res.json(domainDistribution);
-  } catch (error) {
-    console.error('Error fetching domain distribution for hosted zone: ${id}', error);
-    res.status(500).send(error.message);
-  }
-});
-
-// Get record type distribution of a hosted zone
-router.get('/zones/hostedzone/:id/record-type-distribution', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { typeDistribution } = await route53Service.getRecords(id);
-    res.json(typeDistribution);
-  } catch (error) {
-    console.error('Error fetching record type distribution for hosted zone: ${id}', error);
-    res.status(500).send(error.message);
-  }
-});
-
 // Bulk Upload DNS Records
 router.post('/zones/hostedzone/:id/bulk-upload', upload.single('file'), async (req, res) => {
   try {
@@ -175,28 +151,5 @@ const parseFile = (filePath, fileType) => {
   });
 };
 
-//Filtering Bulk records
-router.get('/zones/hostedzone/:id/records/filter', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { search, type } = req.query;
-    const records = await route53Service.getRecords(id);
-
-    // Apply search and filter logic
-    let filteredRecords = records;
-    if (search) {
-      filteredRecords = filteredRecords.filter(record => 
-        record.Name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-    if (type) {
-      filteredRecords = filteredRecords.filter(record => record.Type === type);
-    }
-
-    res.json(filteredRecords);
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
 
 module.exports = router;
