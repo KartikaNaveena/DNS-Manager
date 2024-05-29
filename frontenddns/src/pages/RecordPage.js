@@ -11,11 +11,11 @@ import '../styles/RecordsPage.css';
 const RecordsPage = () => {
   const { zoneId } = useParams();
   const [records, setRecords] = useState([]);
+  const [filteredRecords, setFilteredRecords] = useState([]);
   const [recordTypeDistribution, setRecordTypeDistribution] = useState({});
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isBulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
   const [editRecord, setEditRecord] = useState(null);
-  const [filteredRecords, setFilteredRecords] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,17 +29,22 @@ const RecordsPage = () => {
   const fetchRecords = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:3000/route53/zones//hostedzone/${zoneId}/records`);
-      setRecords(response.data);
-      calculateRecordTypeDistribution(response.data);
+      const response = await axios.get(`http://localhost:3000/route53/zones/hostedzone/${zoneId}/records`);
+      const data = response.data;
+      setRecords(data);
+      setFilteredRecords(data);
+      calculateRecordTypeDistribution(data);
       setSuccess(true);
     } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to fetch records';
       console.error('Error fetching records:', error);
-      setError(error.message);
-    }finally{
+      setError(errorMessage);
+      setSuccess(false);
+    } finally {
       setLoading(false);
     }
   };
+
   const calculateRecordTypeDistribution = (records) => {
     const distribution = records.reduce((acc, record) => {
       acc[record.Type] = (acc[record.Type] || 0) + 1;
@@ -48,21 +53,8 @@ const RecordsPage = () => {
     setRecordTypeDistribution(distribution);
   };
 
-
   const handleEditRecord = (record) => {
-    setEditRecord(record); // Set the record to be edited
-    const editRecord =record;
-    try {
-      setLoading(true);
-      
-    
-      setSuccess(true);
-    } catch (error) {
-      console.error('Error editing record:', error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
+    setEditRecord(record);
   };
 
   const handleDeleteRecord = async (record) => {
@@ -70,8 +62,8 @@ const RecordsPage = () => {
       setLoading(true);
       await axios.delete(`http://localhost:3000/route53/zones/hostedzone/${zoneId}/records`, { data: record });
       await new Promise(resolve => setTimeout(resolve, 1000));
-      setSuccess(true);
       fetchRecords();
+      setSuccess(true);
     } catch (error) {
       console.error('Error deleting record:', error);
       setError(error.message);
@@ -80,20 +72,20 @@ const RecordsPage = () => {
     }
   };
 
-  
   const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-    applyFilter(event.target.value, filterType);
+    const searchValue = event.target.value;
+    setSearchTerm(searchValue);
+    applyFilter(searchValue, filterType);
   };
 
   const handleFilterChange = (event) => {
-    setFilterType(event.target.value);
-    applyFilter(searchTerm, event.target.value);
+    const filterValue = event.target.value;
+    setFilterType(filterValue);
+    applyFilter(searchTerm, filterValue);
   };
 
   const applyFilter = (search, type) => {
     let filtered;
-  
     if (search || type) {
       filtered = records.filter(record => {
         const nameMatch = !search || record.Name.toLowerCase().includes(search.toLowerCase());
@@ -101,14 +93,10 @@ const RecordsPage = () => {
         return nameMatch && typeMatch;
       });
     } else {
-      // If both search and type are empty, show all records
       filtered = records;
     }
-  
     setFilteredRecords(filtered);
   };
-  
-  
 
   return (
     <div className="records-page">
@@ -136,35 +124,34 @@ const RecordsPage = () => {
           </tr>
         </thead>
         <tbody>
-  {filteredRecords.length > 0 ? (
-    filteredRecords.map((record, index) => (
-      <tr key={index}>
-        <td>{record.Name}</td>
-        <td>{record.Type}</td>
-        <td>{record.ResourceRecords.map(r => r.Value).join(', ')}</td>
-        <td>{record.TTL}</td>
-        <td>
-          <button onClick={() => handleEditRecord(record)}>Edit</button>
-          <button onClick={() => handleDeleteRecord(record)}>Delete</button>
-        </td>
-      </tr>
-    ))
-  ) : (
-    records.map((record, index) => (
-      <tr key={index}>
-        <td>{record.Name}</td>
-        <td>{record.Type}</td>
-        <td>{record.ResourceRecords.map(r => r.Value).join(', ')}</td>
-        <td>{record.TTL}</td>
-        <td>
-          <button onClick={() => handleEditRecord(record)}>Edit</button>
-          <button onClick={() => handleDeleteRecord(record)}>Delete</button>
-        </td>
-      </tr>
-    ))
-  )}
-</tbody>
-
+          {filteredRecords.length > 0 ? (
+            filteredRecords.map((record, index) => (
+              <tr key={index}>
+                <td>{record.Name}</td>
+                <td>{record.Type}</td>
+                <td>{record.ResourceRecords.map(r => r.Value).join(', ')}</td>
+                <td>{record.TTL}</td>
+                <td>
+                  <button onClick={() => handleEditRecord(record)}>Edit</button>
+                  <button onClick={() => handleDeleteRecord(record)}>Delete</button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            records.map((record, index) => (
+              <tr key={index}>
+                <td>{record.Name}</td>
+                <td>{record.Type}</td>
+                <td>{record.ResourceRecords.map(r => r.Value).join(', ')}</td>
+                <td>{record.TTL}</td>
+                <td>
+                  <button onClick={() => handleEditRecord(record)}>Edit</button>
+                  <button onClick={() => handleDeleteRecord(record)}>Delete</button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
       </table>
       {isAddModalOpen && (
         <AddRecordModal
@@ -172,6 +159,8 @@ const RecordsPage = () => {
           onRequestClose={() => setAddModalOpen(false)}
           hostedZoneId={zoneId}
           fetchRecords={fetchRecords}
+          setError={setError}
+          setSuccess={setSuccess}
         />
       )}
       {isBulkUploadModalOpen && (
@@ -180,19 +169,22 @@ const RecordsPage = () => {
           onRequestClose={() => setBulkUploadModalOpen(false)}
           hostedZoneId={zoneId}
           fetchRecords={fetchRecords}
+          setError={setError}
+          setSuccess={setSuccess}
         />
       )}
-      
-{editRecord && (
-  <EditRecordModal
-    isOpen={true}
-    onRequestClose={() => setEditRecord(null)}
-    record={editRecord}
-    zoneId={zoneId}
-    onUpdateRecord={fetchRecords}
-  />
-)}
-  <RecordTypeDistributionChart recordTypeDistribution={recordTypeDistribution} />
+      {editRecord && (
+        <EditRecordModal
+          isOpen={true}
+          onRequestClose={() => setEditRecord(null)}
+          record={editRecord}
+          zoneId={zoneId}
+          onUpdateRecord={fetchRecords}
+          setError={setError}
+          setSuccess={setSuccess}
+        />
+      )}
+      <RecordTypeDistributionChart recordTypeDistribution={recordTypeDistribution} />
     </div>
   );
 };

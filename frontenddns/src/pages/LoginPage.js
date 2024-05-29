@@ -11,19 +11,12 @@ const LoginPage = ({ setRole }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        console.log('in frontend');
       const response = await axios.post('http://localhost:3000/route53/login', { username, password });
-      console.log('Response from server:', response.data);
-
       if (response.data.message === 'Login successful') {
-            
-       
-        navigate('/');
+        navigate('/'); 
       }
-      else
-      {
+      else{
         navigate('/login')
-        console.log('invalid cree');
       }
     } catch (error) {
       setError('Invalid credentials');

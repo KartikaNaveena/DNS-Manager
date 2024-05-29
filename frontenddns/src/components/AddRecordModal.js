@@ -4,17 +4,21 @@ import axios from 'axios';
 import '../styles/AddRecordModal.css';
 
 const AddRecordModal = ({ isOpen, onRequestClose, hostedZoneId, fetchRecords, setError, setSuccess }) => {
+  // State variables for the form inputs
   const [type, setType] = useState('A');
   const [name, setName] = useState('');
   const [value, setValue] = useState('');
   const [ttl, setTTL] = useState(300);
+  
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const record = {
       Type: type,
       Name: name,
-      TTL: ttl,
+      TTL: parseInt(ttl, 10), // Ensure TTL is an integer
       ResourceRecords: [{ Value: value }],
     };
 
@@ -22,16 +26,13 @@ const AddRecordModal = ({ isOpen, onRequestClose, hostedZoneId, fetchRecords, se
       await axios.post(`http://localhost:3000/route53/zones/hostedzone/${hostedZoneId}/records`, record);
       fetchRecords();
       onRequestClose();
-      setSuccess(true); // Set success notification
-      setError(null); // Clear any previous error
+      setSuccess('Record added successfully');
+      setError(null);
     } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to add record';
       console.error('Error adding record:', error);
-      if (error.response && error.response.data && error.response.data.message) {
-        setError(error.response.data.message); // Set error message from server response
-      } else {
-        setError('Failed to add record'); // Set generic error message
-      }
-      setSuccess(false); // Clear any previous success
+      setError(errorMessage);
+      setSuccess(null);
     }
   };
 
@@ -39,33 +40,37 @@ const AddRecordModal = ({ isOpen, onRequestClose, hostedZoneId, fetchRecords, se
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} contentLabel="Add Record">
       <h2>Add DNS Record</h2>
       <form onSubmit={handleSubmit}>
-        <label>
-          Type:
-          <select value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="A">A</option>
-            <option value="AAAA">AAAA</option>
-            <option value="CNAME">CNAME</option>
-            <option value="MX">MX</option>
-            <option value="NS">NS</option>
-            <option value="PTR">PTR</option>
-            <option value="SOA">SOA</option>
-            <option value="SRV">SRV</option>
-            <option value="TXT">TXT</option>
-          </select>
-        </label>
-        <label>
-          Name:
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
-        </label>
-        <label>
-          Value:
-          <input type="text" value={value} onChange={(e) => setValue(e.target.value)} />
-        </label>
-        <label>
-          TTL:
-          <input type="number" value={ttl} onChange={(e) => setTTL(e.target.value)} />
-        </label>
-        <button type="submit">Add Record</button>
+        <div>
+          <label>
+            Type:
+            <select value={type} onChange={(e) => setType(e.target.value)}>
+              {['A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT'].map((recordType) => (
+                <option key={recordType} value={recordType}>{recordType}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            Name:
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Value:
+            <input type="text" value={value} onChange={(e) => setValue(e.target.value)} required />
+          </label>
+        </div>
+        <div>
+          <label>
+            TTL:
+            <input type="number" value={ttl} onChange={(e) => setTTL(e.target.value)} required />
+          </label>
+        </div>
+        <div>
+          <button type="submit">Add Record</button>
+        </div>
       </form>
     </Modal>
   );

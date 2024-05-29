@@ -6,8 +6,9 @@ import '../styles/DomainPage.css';
 
 const DomainPage = () => {
   const [domains, setDomains] = useState([]);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
   const [domainDistribution, setDomainDistribution] = useState({});
-  const [showChart, setShowChart] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,6 +19,7 @@ const DomainPage = () => {
     try {
       const response = await axios.get('http://localhost:3000/route53/zones');
       setDomains(response.data);
+
       // Calculate domain distribution
       const distribution = response.data.reduce((acc, domain) => {
         const domainName = domain.Name.split('.').slice(-2).join('.');
@@ -27,22 +29,17 @@ const DomainPage = () => {
 
       setDomainDistribution(distribution);
     } catch (error) {
-      console.error('Error fetching domains:', error);
-    }
-  };
-
-  const fetchDomainDistribution = async (zoneId) => {
-    try {
-      const response = await axios.get(`http://localhost:3000/route53/zones/hostedzone/${zoneId}/domain-distribution`);
-      setDomainDistribution(response.data);
-      setShowChart(true);
-    } catch (error) {
-      console.error('Error fetching domain distribution:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to add record';
+      console.error('Error adding record:', error);
+      setError(errorMessage);
+      setSuccess(null);
     }
   };
 
   return (
     <div className="domain-page">
+      {error && <div className="notification error">Error: {error}</div>}
+      {success && <div className="notification success">Operation successful!</div>}
       <h2>Domains</h2>
       <table>
         <thead>
