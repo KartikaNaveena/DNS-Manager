@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../styles/LoginPage.css';
 
 const LoginPage = ({ setRole }) => {
   const [username, setUsername] = useState('');
@@ -16,7 +17,7 @@ const LoginPage = ({ setRole }) => {
         navigate('/'); 
       }
       else{
-        navigate('/login')
+        navigate('/domainlist')
       }
     } catch (error) {
       setError('Invalid credentials');
@@ -24,7 +25,7 @@ const LoginPage = ({ setRole }) => {
   };
 
   return (
-    <div>
+    <div className="login-container">
       <h2>Login</h2>
       {error && <p>{error}</p>}
       <form onSubmit={handleSubmit}>

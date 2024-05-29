@@ -1,8 +1,10 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+// App.js
+
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import DomainPage from './pages/DomainPage';
-import RecordsPage from './pages/RecordPage';
 import LoginPage from './pages/LoginPage';
+import RecordsPage from './pages/RecordPage';
 import './App.css';
 
 function App() {
@@ -11,15 +13,14 @@ function App() {
       <div className="App">
         <Routes>
           <Route
-            path="/login"
-            element={<LoginPage/>} />
-          <Route
             path="/"
-            element={
-                <DomainPage />
-            }
+            element={<LoginPage />}
           />
-          <Route path="/records//hostedzone/:zoneId" element={<RecordsPage />} />
+          <Route
+            path="/domainlist"
+            element={<DomainPage />}
+          />
+            <Route path="/records//hostedzone/:zoneId" element={<RecordsPage />} />
         </Routes>
       </div>
     </Router>
