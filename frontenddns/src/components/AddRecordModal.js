@@ -23,7 +23,7 @@ const AddRecordModal = ({ isOpen, onRequestClose, hostedZoneId, fetchRecords, se
     };
 
     try {
-      await axios.post(`http://localhost:3000/route53/zones/hostedzone/${hostedZoneId}/records`, record);
+      await axios.post(`https://dns-manager-8sdm.onrender.com/route53/zones/hostedzone/${hostedZoneId}/records`, record);
       fetchRecords();
       onRequestClose();
       setSuccess('Record added successfully');

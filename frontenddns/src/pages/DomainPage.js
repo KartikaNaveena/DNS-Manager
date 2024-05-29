@@ -17,7 +17,7 @@ const DomainPage = () => {
 
   const fetchDomains = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/route53/zones');
+      const response = await axios.get('https://dns-manager-8sdm.onrender.com/route53/zones');
       setDomains(response.data);
 
       // Calculate domain distribution
