@@ -5,42 +5,78 @@ import AddRecordModal from '../components/AddRecordModal';
 import BulkUploadModal from '../components/BulkUploadModal';
 import EditRecordModal from '../components/EditRecordModal';
 import SearchBar from '../components/SearchBar';
+import RecordTypeDistributionChart from '../components/RecordTypeDistributionChart';
 import '../styles/RecordsPage.css';
 
 const RecordsPage = () => {
   const { zoneId } = useParams();
   const [records, setRecords] = useState([]);
+  const [recordTypeDistribution, setRecordTypeDistribution] = useState({});
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isBulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
   const [editRecord, setEditRecord] = useState(null);
   const [filteredRecords, setFilteredRecords] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchRecords();
   }, [zoneId]);
 
   const fetchRecords = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(`http://localhost:3000/route53/zones//hostedzone/${zoneId}/records`);
       setRecords(response.data);
+      calculateRecordTypeDistribution(response.data);
+      setSuccess(true);
     } catch (error) {
       console.error('Error fetching records:', error);
+      setError(error.message);
+    }finally{
+      setLoading(false);
     }
   };
+  const calculateRecordTypeDistribution = (records) => {
+    const distribution = records.reduce((acc, record) => {
+      acc[record.Type] = (acc[record.Type] || 0) + 1;
+      return acc;
+    }, {});
+    setRecordTypeDistribution(distribution);
+  };
+
 
   const handleEditRecord = (record) => {
     setEditRecord(record); // Set the record to be edited
     const editRecord =record;
+    try {
+      setLoading(true);
+      
+    
+      setSuccess(true);
+    } catch (error) {
+      console.error('Error editing record:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDeleteRecord = async (record) => {
     try {
+      setLoading(true);
       await axios.delete(`http://localhost:3000/route53/zones/hostedzone/${zoneId}/records`, { data: record });
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setSuccess(true);
       fetchRecords();
     } catch (error) {
       console.error('Error deleting record:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,6 +112,10 @@ const RecordsPage = () => {
 
   return (
     <div className="records-page">
+      {loading && <div className="notification">Loading...</div>}
+      {error && <div className="notification error">Error: {error}</div>}
+      {success && <div className="notification success">Operation successful!</div>}
+
       <h2>Records for Zone: {zoneId}</h2>
       <SearchBar
         searchTerm={searchTerm}
@@ -152,6 +192,7 @@ const RecordsPage = () => {
     onUpdateRecord={fetchRecords}
   />
 )}
+  <RecordTypeDistributionChart recordTypeDistribution={recordTypeDistribution} />
     </div>
   );
 };

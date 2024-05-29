@@ -3,7 +3,7 @@ import Modal from 'react-modal';
 import axios from 'axios';
 import '../styles/AddRecordModal.css';
 
-const AddRecordModal = ({ isOpen, onRequestClose, hostedZoneId, fetchRecords }) => {
+const AddRecordModal = ({ isOpen, onRequestClose, hostedZoneId, fetchRecords, setError, setSuccess }) => {
   const [type, setType] = useState('A');
   const [name, setName] = useState('');
   const [value, setValue] = useState('');
@@ -22,8 +22,16 @@ const AddRecordModal = ({ isOpen, onRequestClose, hostedZoneId, fetchRecords }) 
       await axios.post(`http://localhost:3000/route53/zones/hostedzone/${hostedZoneId}/records`, record);
       fetchRecords();
       onRequestClose();
+      setSuccess(true); // Set success notification
+      setError(null); // Clear any previous error
     } catch (error) {
       console.error('Error adding record:', error);
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message); // Set error message from server response
+      } else {
+        setError('Failed to add record'); // Set generic error message
+      }
+      setSuccess(false); // Clear any previous success
     }
   };
 

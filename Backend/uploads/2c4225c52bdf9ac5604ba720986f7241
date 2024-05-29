@@ -1,4 +1,0 @@
-Action,Name,Type,TTL,ResourceRecords
-CREATE,example.com,A,300,[{"Value":"192.0.2.1"}]
-UPDATE,example.com,TXT,300,[{"Value":"updated-value"}]
-DELETE,example.com,A,300,[{"Value":"192.0.2.1"}]
