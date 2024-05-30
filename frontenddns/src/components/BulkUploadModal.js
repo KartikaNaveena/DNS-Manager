@@ -16,7 +16,7 @@ const BulkUploadModal = ({ isOpen, onRequestClose, hostedZoneId, fetchRecords })
     formData.append('file', file);
 
     try {
-      await axios.post(`https://dns-manager-8sdm.onrender.com/route53/zones/hostedzone/${hostedZoneId}/bulk-upload`, formData, {
+      await axios.post(`http://localhost:3000/route53/zones/hostedzone/${hostedZoneId}/bulk-upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

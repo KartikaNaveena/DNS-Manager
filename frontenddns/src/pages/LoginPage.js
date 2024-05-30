@@ -13,7 +13,7 @@ const LoginPage = ({ setRole }) => {
     e.preventDefault();
     try {
       console.log('came to login');
-      const response = await axios.post('https://dns-manager-8sdm.onrender.com/route53/login', { username, password });
+      const response = await axios.post('http://localhost:3000/route53/login', { username, password });
       if (response.data.message === 'Login successful') {
         console.log('login succesful');
         navigate('/domainlist'); 

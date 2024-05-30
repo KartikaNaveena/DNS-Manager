@@ -22,7 +22,7 @@ const EditRecordModal = ({ isOpen, onRequestClose, record, zoneId, onUpdateRecor
     };
 
     try {
-      await axios.put(`https://dns-manager-8sdm.onrender.com/route53/zones/hostedzone/${zoneId}/records`, updatedRecord);
+      await axios.put(`http://localhost:3000/route53/zones/hostedzone/${zoneId}/records`, updatedRecord);
       onUpdateRecord(updatedRecord);
       onRequestClose();
       setSuccess('Record added successfully');
